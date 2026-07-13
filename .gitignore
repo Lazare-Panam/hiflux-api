@@ -312,7 +312,9 @@ node_modules/
 # Visual Studio 6 technical files
 *.ncb
 *.aps
-
+# appsettings
+appsettings.*.json
+!appsettings.json
 # Visual Studio LightSwitch build output
 **/*.HTMLClient/GeneratedArtifacts
 **/*.DesktopClient/GeneratedArtifacts
