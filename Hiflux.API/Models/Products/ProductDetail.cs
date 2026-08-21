@@ -1,11 +1,12 @@
 ﻿using Hiflux.API.Models.Enums;
+using Hiflux.API.Repository.Interfaces;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Hiflux.API.Models.Products
 {
     [BsonIgnoreExtraElements]
-    public class ProductDetail
+    public class ProductDetail :IHasId
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
