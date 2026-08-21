@@ -10,8 +10,6 @@ using MongoDB.Driver;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
-builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
@@ -30,13 +28,12 @@ builder.Services.AddSingleton<IMongoClient>(sp =>
     var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>().Value;
     return new MongoClient(settings.ConnectionString);
 });
-
-builder.Services.AddScoped<IMongoDatabase>(sp =>
+builder.Services.AddSingleton<IMongoDatabase>(sp =>
 {
     var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>().Value;
-    return sp.GetRequiredService<IMongoClient>()
-             .GetDatabase(settings.DatabaseName);
+    return sp.GetRequiredService<IMongoClient>().GetDatabase(settings.DatabaseName);
 });
+
 builder.Services.AddScoped<INoSQLRepository<ProductCatalog>, ProductCatalogRepository>();
 builder.Services.AddScoped<INoSQLRepository<ProductDetail>, ProductDetailRepository>();
 builder.Services.AddScoped<INoSQLRepository<ProductSeriesVariants>, ProductVariantRepository>();
