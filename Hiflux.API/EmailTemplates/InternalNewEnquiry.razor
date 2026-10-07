@@ -1,0 +1,33 @@
+@* Internal notification sent to sales@ when someone submits the Contact Us form. *@
+<EmailLayout Title="New Website Enquiry"
+             Subtitle="Hiflux UK · Internal Notification"
+             HeaderColor="#163E73"
+             FooterNote="Automated Lead Notification System">
+
+    <p style="color:#000000; font-size:16px; line-height:1.5; margin:0 0 20px;">
+        A new enquiry has come in through the website. Reply to this email to answer the customer directly.
+    </p>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse; margin-bottom: 20px;">
+        <DetailRow Label="NAME" Value="@Enquiry.Name" />
+        <DetailRow Label="COMPANY" Value="@Enquiry.Company" />
+        <DetailRow Label="EMAIL" Value="@Enquiry.Email" />
+        <DetailRow Label="COUNTRY" Value="@Enquiry.Country" />
+        <DetailRow Label="PRODUCT / PART NO." Value="@Enquiry.ProductOrPartNumber" IsLast="true" />
+    </table>
+
+    <p style="color:#2B4A73; font-size:13px; text-transform:uppercase; letter-spacing:0.5px; margin:0 0 8px; font-weight:bold;">
+        Message
+    </p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#EAF1FA; border:1px solid #D6E2F1; border-radius:6px; margin: 0 0 24px;">
+        <tr>
+            <td style="padding: 18px;">
+                <p style="color:#000000; font-size:15px; line-height:1.5; margin:0; white-space:pre-wrap;">@Enquiry.Message</p>
+            </td>
+        </tr>
+    </table>
+</EmailLayout>
+
+@code {
+    [Parameter, EditorRequired] public ContactEnquiry Enquiry { get; set; } = default!;
+}
