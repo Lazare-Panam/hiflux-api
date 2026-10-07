@@ -19,6 +19,14 @@ namespace Hiflux.API.Models.Contact
         [StringLength(150)]
         public string? ProductOrPartNumber { get; set; }
 
+        // Free text so buyers can give it their way, e.g. "15,000 psi" or "1,034 bar".
+        [StringLength(50)]
+        public string? Pressure { get; set; }
+
+        // e.g. "1/4\" medium pressure cone and thread", "9/16-18 UNF", "1/4\" NPT".
+        [StringLength(100)]
+        public string? ConnectionType { get; set; }
+
         [Required, StringLength(5000, MinimumLength = 10)]
         public string Message { get; set; } = string.Empty;
 

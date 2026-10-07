@@ -19,15 +19,23 @@ namespace Hiflux.API.Services.Notification
         /// Builds the HTML body for the receipt email sent back to the customer who submitted an enquiry.
         /// </summary>
         /// <returns>Rendered HTML of the <c>NewEnquiry.razor</c> template.</returns>
-        public Task<string> GetEnquiryReceiptHtmlAsync(ContactEnquiry enquiry) =>
-            RenderAsync<NewEnquiry>(new Dictionary<string, object?> { { nameof(NewEnquiry.Enquiry), enquiry } });
+        public Task<string> GetEnquiryReceiptHtmlAsync(ContactEnquiry enquiry, string? billOfMaterialsFileName = null) =>
+            RenderAsync<NewEnquiry>(new Dictionary<string, object?>
+            {
+                { nameof(NewEnquiry.Enquiry), enquiry },
+                { nameof(NewEnquiry.BillOfMaterialsFileName), billOfMaterialsFileName }
+            });
 
         /// <summary>
         /// Builds the HTML body for the internal notification email alerting staff to a new enquiry.
         /// </summary>
         /// <returns>Rendered HTML of the <c>InternalNewEnquiry.razor</c> template.</returns>
-        public Task<string> GetEnquiryInternalHtmlAsync(ContactEnquiry enquiry) =>
-            RenderAsync<InternalNewEnquiry>(new Dictionary<string, object?> { { nameof(InternalNewEnquiry.Enquiry), enquiry } });
+        public Task<string> GetEnquiryInternalHtmlAsync(ContactEnquiry enquiry, string? billOfMaterialsFileName = null) =>
+            RenderAsync<InternalNewEnquiry>(new Dictionary<string, object?>
+            {
+                { nameof(InternalNewEnquiry.Enquiry), enquiry },
+                { nameof(InternalNewEnquiry.BillOfMaterialsFileName), billOfMaterialsFileName }
+            });
 
         /// <summary>
         /// Renders a Razor component from <c>EmailTemplates/</c> to an HTML string.

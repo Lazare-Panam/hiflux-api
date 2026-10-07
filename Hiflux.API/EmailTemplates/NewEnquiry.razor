@@ -11,7 +11,10 @@
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse; margin-bottom: 20px;">
         <DetailRow Label="COMPANY" Value="@Enquiry.Company" />
         <DetailRow Label="COUNTRY" Value="@Enquiry.Country" />
-        <DetailRow Label="PRODUCT / PART NO." Value="@Enquiry.ProductOrPartNumber" IsLast="true" />
+        <DetailRow Label="PRODUCT / PART NO." Value="@Enquiry.ProductOrPartNumber" />
+        <DetailRow Label="PRESSURE" Value="@Enquiry.Pressure" />
+        <DetailRow Label="CONNECTION TYPE" Value="@Enquiry.ConnectionType" />
+        <DetailRow Label="BILL OF MATERIALS" Value="@BomText" IsLast="true" />
     </table>
 
     <p style="color:#2B4A73; font-size:13px; text-transform:uppercase; letter-spacing:0.5px; margin:0 0 8px; font-weight:bold;">
@@ -34,4 +37,7 @@
     private const string SalesEmail = "sales@hiflux.uk.com";
 
     [Parameter, EditorRequired] public ContactEnquiry Enquiry { get; set; } = default!;
+    [Parameter] public string? BillOfMaterialsFileName { get; set; }
+
+    private string BomText => string.IsNullOrEmpty(BillOfMaterialsFileName) ? "None" : BillOfMaterialsFileName + " (received)";
 }

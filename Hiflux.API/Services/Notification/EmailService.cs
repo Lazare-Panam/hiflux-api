@@ -1,5 +1,6 @@
 using Azure;
 using Azure.Communication.Email;
+using Hiflux.API.Models.Notification;
 using Hiflux.API.Services.Interface;
 using Hiflux.API.Settings;
 using Microsoft.Extensions.Options;
@@ -23,10 +24,11 @@ namespace Hiflux.API.Services.Notification
         /// <param name="subject">The email subject line.</param>
         /// <param name="htmlBody">The rendered HTML body to send.</param>
         /// <param name="replyToEmail">Optional address that replies go to, e.g. the customer on an internal notification.</param>
+        /// <param name="attachments">Optional files to attach, e.g. a customer's bill of materials.</param>
         /// <param name="ct">Cancellation token for the send operation.</param>
         /// <exception cref="ArgumentException">Thrown if recipient, subject or body is null or whitespace.</exception>
         /// <exception cref="RequestFailedException">Thrown if Azure Communication Services rejects or fails to send the email; logged before rethrowing.</exception>
-        public async Task SendEmailAsync(string recipientEmail, string subject, string htmlBody, string? replyToEmail = null, CancellationToken ct = default)
+        public async Task SendEmailAsync(string recipientEmail, string subject, string htmlBody, string? replyToEmail = null, IEnumerable<EmailFileAttachment>? attachments = null, CancellationToken ct = default)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(recipientEmail);
             ArgumentException.ThrowIfNullOrWhiteSpace(subject);
@@ -40,6 +42,10 @@ namespace Hiflux.API.Services.Notification
             if (!string.IsNullOrWhiteSpace(replyToEmail))
             {
                 message.ReplyTo.Add(new EmailAddress(replyToEmail));
+            }
+            foreach (var file in attachments ?? [])
+            {
+                message.Attachments.Add(new EmailAttachment(file.FileName, file.ContentType, BinaryData.FromBytes(file.Content)));
             }
 
             try

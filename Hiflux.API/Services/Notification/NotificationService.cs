@@ -24,12 +24,12 @@ namespace Hiflux.API.Services.Notification
         /// Each email is sent independently, so a failure sending one does not prevent the other.
         /// </summary>
         /// <returns>A <see cref="NotificationResult"/> indicating which of the two emails were sent successfully.</returns>
-        public async Task<NotificationResult> HandleNewEnquiryAsync(ContactEnquiry enquiry, CancellationToken ct = default)
+        public async Task<NotificationResult> HandleNewEnquiryAsync(ContactEnquiry enquiry, EmailFileAttachment? billOfMaterials = null, CancellationToken ct = default)
         {
             var result = new NotificationResult();
             try
             {
-                await SendEnquiryInternalNotificationAsync(enquiry, ct);
+                await SendEnquiryInternalNotificationAsync(enquiry, billOfMaterials, ct);
                 result.InternalNotificationSent = true;
             }
             catch (Exception ex)
@@ -39,7 +39,7 @@ namespace Hiflux.API.Services.Notification
 
             try
             {
-                await SendEnquiryReceiptAsync(enquiry, ct);
+                await SendEnquiryReceiptAsync(enquiry, billOfMaterials?.FileName, ct);
                 result.ReceiptSent = true;
             }
             catch (Exception ex)
@@ -51,23 +51,24 @@ namespace Hiflux.API.Services.Notification
         /// <summary>
         /// Renders and sends the receipt email back to the customer who submitted an enquiry.
         /// </summary>
-        private async Task SendEnquiryReceiptAsync(ContactEnquiry enquiry, CancellationToken ct)
+        private async Task SendEnquiryReceiptAsync(ContactEnquiry enquiry, string? billOfMaterialsFileName, CancellationToken ct)
         {
-            var body = await _templateService.GetEnquiryReceiptHtmlAsync(enquiry);
+            var body = await _templateService.GetEnquiryReceiptHtmlAsync(enquiry, billOfMaterialsFileName);
             await _emailService.SendEmailAsync(enquiry.Email, "We've received your enquiry", body, ct: ct);
         }
         /// <summary>
         /// Renders and sends the internal staff notification email for a new enquiry,
         /// to the address configured in <see cref="EmailSettings.InternalAddressEmail"/>.
-        /// Reply-To is the customer, so staff can answer straight from their inbox.
+        /// Reply-To is the customer, so staff can answer straight from their inbox. The BOM, if any, is attached here.
         /// </summary>
-        private async Task SendEnquiryInternalNotificationAsync(ContactEnquiry enquiry, CancellationToken ct)
+        private async Task SendEnquiryInternalNotificationAsync(ContactEnquiry enquiry, EmailFileAttachment? billOfMaterials, CancellationToken ct)
         {
-            var body = await _templateService.GetEnquiryInternalHtmlAsync(enquiry);
+            var body = await _templateService.GetEnquiryInternalHtmlAsync(enquiry, billOfMaterials?.FileName);
             var subject = string.IsNullOrWhiteSpace(enquiry.Company)
                 ? $"New Enquiry from {enquiry.Name}"
                 : $"New Enquiry from {enquiry.Company}";
-            await _emailService.SendEmailAsync(_emailSettings.InternalAddressEmail, subject, body, replyToEmail: enquiry.Email, ct: ct);
+            var attachments = billOfMaterials is null ? null : new[] { billOfMaterials };
+            await _emailService.SendEmailAsync(_emailSettings.InternalAddressEmail, subject, body, replyToEmail: enquiry.Email, attachments: attachments, ct: ct);
         }
     }
 }
