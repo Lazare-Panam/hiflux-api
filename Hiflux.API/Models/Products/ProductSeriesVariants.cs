@@ -30,6 +30,18 @@ namespace Hiflux.API.Models.Products
 
         [BsonElement("specs")]
         public Dictionary<string, string> Specs { get; set; } = [];
+
+        // Canonical, URL-safe SKU: the unique id in upper case, because buyers search part numbers in upper case.
+        // Every series exposes the same field, so URLs no longer depend on which spec key a series happens to use.
+        [BsonIgnore]
+        public string Sku => Id.ToUpperInvariant();
+
+        // The catalogue part number as printed (not always unique, e.g. CO2 regulator variants share one).
+        [BsonIgnore]
+        public string PartNumber =>
+            PartNumberKeys.Select(key => Specs.GetValueOrDefault(key)).FirstOrDefault(value => !string.IsNullOrWhiteSpace(value)) ?? Sku;
+
+        private static readonly string[] PartNumberKeys = ["SKU", "Catalog No", "Product Code", "Model", "Part Number"];
     }
 
 }

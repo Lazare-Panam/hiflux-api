@@ -7,5 +7,6 @@ namespace Hiflux.API.Services.Interface
         Task<ProductCatalog?> GetCatalogByIdAsync(string id, CancellationToken ct = default);
         Task<ProductDetail?> GetProductDetailAsync(string id, CancellationToken ct = default);
         Task<ProductSeriesVariants?> GetProductVariantsAsync(string id, CancellationToken ct = default);
+        Task<ProductVariantLookup?> GetProductVariantAsync(string id, string sku, CancellationToken ct = default);
     }
 }

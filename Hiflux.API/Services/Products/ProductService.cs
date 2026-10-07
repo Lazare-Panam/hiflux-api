@@ -25,7 +25,7 @@ namespace Hiflux.API.Services.Products
                 _logger.LogWarning("GetCatalogByIdAsync called with null or empty id");
                 return null;
             }
-            var catalog = await _catalogRepository.GetByIdAsync(id, ct);
+            var catalog = await _catalogRepository.GetByIdAsync(NormaliseId(id), ct);
             if (catalog == null)
             {
                 _logger.LogWarning("ProductCatalog not found for {Id}", id);
@@ -40,7 +40,7 @@ namespace Hiflux.API.Services.Products
                 _logger.LogWarning("GetProductDetailAsync called with null or empty id");
                 return null;
             }
-            var detail = await _detailRepository.GetByIdAsync(id, ct);
+            var detail = await _detailRepository.GetByIdAsync(NormaliseId(id), ct);
             if (detail is null)
             {
                 _logger.LogWarning("ProductDetail not found for {Id}", id);
@@ -55,7 +55,7 @@ namespace Hiflux.API.Services.Products
                 _logger.LogWarning("GetProductVariantsAsync called with null or empty id/catalogId");
                 return null;
             }
-            var variants = await _variantRepository.GetByIdAsync(id, ct);
+            var variants = await _variantRepository.GetByIdAsync(NormaliseId(id), ct);
             if (variants is null)
             {
                 _logger.LogWarning("ProductSeriesVariants not found for {Id}", id);
@@ -63,5 +63,29 @@ namespace Hiflux.API.Services.Products
             }
             return variants;
         }
+        public async Task<ProductVariantLookup?> GetProductVariantAsync(string id, string sku, CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(sku))
+            {
+                _logger.LogWarning("GetProductVariantAsync called with null or empty sku");
+                return null;
+            }
+            var series = await GetProductVariantsAsync(id, ct);
+            var variant = series?.Variants.FirstOrDefault(v => string.Equals(v.Id, sku.Trim(), StringComparison.OrdinalIgnoreCase));
+            if (series is null || variant is null)
+            {
+                _logger.LogWarning("Variant {Sku} not found in series {Id}", sku, id);
+                return null;
+            }
+            return new ProductVariantLookup
+            {
+                SeriesId = series.Id,
+                SeriesName = series.Name,
+                ThumbnailImage = series.ThumbnailImage,
+                Variant = variant
+            };
+        }
+        // Ids are stored lower case, so any casing in a URL (FT150CS06, ft150cs06, Ft150Cs06) resolves to the same document.
+        private static string NormaliseId(string id) => id.Trim().ToLowerInvariant();
     }
 }

@@ -55,5 +55,22 @@ namespace Hiflux.API.Controllers
 
             return Ok(variants);
         }
+
+        // Case-insensitive: /variants/ft150cs06 and /variants/FT150CS06 return the same part.
+        // The response's variant.sku is the canonical form, so the frontend can redirect anything else to it.
+        [HttpGet("{id}/variants/{sku}")]
+        public async Task<IActionResult> GetProductVariant(string id, string sku, CancellationToken ct)
+        {
+            _logger.LogInformation("GetProductVariant called for {Id} {Sku}", id, sku);
+            var variant = await _productService.GetProductVariantAsync(id, sku, ct);
+
+            if (variant is null)
+            {
+                _logger.LogWarning("Variant {Sku} not found for {Id}", sku, id);
+                return NotFound($"No variant {sku} found for ID: {id}");
+            }
+
+            return Ok(variant);
+        }
     }
 }
