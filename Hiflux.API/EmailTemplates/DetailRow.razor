@@ -1,0 +1,15 @@
+@* One "LABEL | value" row in a details table. Empty values show "Not Provided". *@
+<tr>
+    <td style="padding: 10px 0; @Border color:#2B4A73; font-size:13px; font-weight:bold; width:160px;">@Label</td>
+    <td style="padding: 10px 0; @Border color:#000000; font-size:14px;">@(string.IsNullOrWhiteSpace(Value) ? "Not Provided" : Value)</td>
+</tr>
+
+@code {
+    [Parameter, EditorRequired] public string Label { get; set; } = string.Empty;
+    [Parameter] public string? Value { get; set; }
+
+    // The last row in a table has no bottom border.
+    [Parameter] public bool IsLast { get; set; }
+
+    private string Border => IsLast ? string.Empty : "border-bottom: 1px solid #D6E2F1;";
+}
