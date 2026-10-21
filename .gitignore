@@ -312,9 +312,10 @@ node_modules/
 # Visual Studio 6 technical files
 *.ncb
 *.aps
-# appsettings
+# appsettings — ignore all variants (they contain secrets); commit appsettings.example.json instead
+appsettings.json
 appsettings.*.json
-!appsettings.json
+!appsettings.example.json
 # Visual Studio LightSwitch build output
 **/*.HTMLClient/GeneratedArtifacts
 **/*.DesktopClient/GeneratedArtifacts

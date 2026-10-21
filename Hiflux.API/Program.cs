@@ -64,6 +64,16 @@ builder.Services.AddScoped<HtmlRenderer>();
 builder.Services.AddScoped<IEmailTemplateService, EmailTemplateService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
+// Email is now sent by dropping a request on the storage queue; the queue-triggered
+// function (NotificationQueueTrigger) does the actual ACS delivery out of process.
+builder.Services.AddOptionsWithValidateOnStart<QueueSettings>()
+    .Bind(builder.Configuration.GetSection(nameof(QueueSettings)))
+    .Validate(settings =>
+        !string.IsNullOrWhiteSpace(settings.ConnectionString) &&
+        !string.IsNullOrWhiteSpace(settings.QueueName),
+        "QueueSettings: ConnectionString and QueueName must be set.");
+builder.Services.AddScoped<IEmailQueuePublisher, EmailQueuePublisher>();
+
 // Stops bots spamming the contact form: 5 submissions per IP every 10 minutes.
 builder.Services.AddRateLimiter(options =>
 {

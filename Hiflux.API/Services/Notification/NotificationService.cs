@@ -9,13 +9,13 @@ namespace Hiflux.API.Services.Notification
     public class NotificationService : INotificationService
     {
         private readonly IEmailTemplateService _templateService;
-        private readonly IEmailService _emailService;
+        private readonly IEmailQueuePublisher _emailQueue;
         private readonly EmailSettings _emailSettings;
         private readonly ILogger<NotificationService> _logger;
-        public NotificationService(IEmailTemplateService templateService, IEmailService emailService, IOptions<EmailSettings> options, ILogger<NotificationService> logger)
+        public NotificationService(IEmailTemplateService templateService, IEmailQueuePublisher emailQueue, IOptions<EmailSettings> options, ILogger<NotificationService> logger)
         {
             _templateService = templateService;
-            _emailService = emailService;
+            _emailQueue = emailQueue;
             _emailSettings = options.Value;
             _logger = logger;
         }
@@ -54,7 +54,7 @@ namespace Hiflux.API.Services.Notification
         private async Task SendEnquiryReceiptAsync(ContactEnquiry enquiry, CancellationToken ct)
         {
             var body = await _templateService.GetEnquiryReceiptHtmlAsync(enquiry);
-            await _emailService.SendEmailAsync(enquiry.Email, "We've received your enquiry", body, ct: ct);
+            await _emailQueue.EnqueueAsync(enquiry.Email, "We've received your enquiry", body, ct);
         }
         /// <summary>
         /// Renders and sends the internal staff notification email for a new enquiry,
@@ -67,7 +67,10 @@ namespace Hiflux.API.Services.Notification
             var subject = string.IsNullOrWhiteSpace(enquiry.Company)
                 ? $"New Enquiry from {enquiry.Name}"
                 : $"New Enquiry from {enquiry.Company}";
-            await _emailService.SendEmailAsync(_emailSettings.InternalAddressEmail, subject, body, replyToEmail: enquiry.Email, ct: ct);
+            // NOTE: Reply-To (the customer) is not carried on the queue message yet, so staff
+            // can't reply straight from the internal email. To restore it, add a replyTo field
+            // to both the queue message and the function's QueueNotification/send call.
+            await _emailQueue.EnqueueAsync(_emailSettings.InternalAddressEmail, subject, body, ct);
         }
     }
 }
