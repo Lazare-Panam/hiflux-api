@@ -1,0 +1,37 @@
+@* Receipt sent back to the customer after they submit the Contact Us form. *@
+<EmailLayout Title="Hiflux UK" Subtitle="Your Enquiry, Received">
+
+    <p style="color:#000000; font-size:16px; line-height:1.5; margin:0 0 16px;">
+        Hi @Enquiry.Name,
+    </p>
+    <p style="color:#000000; font-size:16px; line-height:1.5; margin:0 0 16px;">
+        Thanks for getting in touch with Hiflux UK. We've received your enquiry and one of our team will be back to you shortly.
+    </p>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse; margin-bottom: 20px;">
+        <DetailRow Label="COMPANY" Value="@Enquiry.Company" />
+        <DetailRow Label="COUNTRY" Value="@Enquiry.Country" />
+        <DetailRow Label="PRODUCT / PART NO." Value="@Enquiry.ProductOrPartNumber" IsLast="true" />
+    </table>
+
+    <p style="color:#2B4A73; font-size:13px; text-transform:uppercase; letter-spacing:0.5px; margin:0 0 8px; font-weight:bold;">
+        Your message
+    </p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F4F7FB; border-radius:6px; margin: 0 0 24px;">
+        <tr>
+            <td style="padding: 20px;">
+                <p style="color:#000000; font-size:15px; line-height:1.5; margin:0; white-space:pre-wrap;">@Enquiry.Message</p>
+            </td>
+        </tr>
+    </table>
+
+    <p style="color:#000000; font-size:14px; line-height:1.5; margin:0;">
+        Need us sooner? Email <a href="mailto:@SalesEmail" style="color:#1F5FAD;">@SalesEmail</a> or call +44 7369 243459.
+    </p>
+</EmailLayout>
+
+@code {
+    private const string SalesEmail = "sales@hiflux.uk.com";
+
+    [Parameter, EditorRequired] public ContactEnquiry Enquiry { get; set; } = default!;
+}

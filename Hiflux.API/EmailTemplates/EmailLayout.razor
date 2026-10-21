@@ -1,0 +1,50 @@
+@* Shared frame for every Hiflux email: header bar, white card, footer.
+   Each email template wraps its own content in <EmailLayout>...</EmailLayout>. *@
+<!DOCTYPE html>
+<html lang="en">
+<body style="margin:0; padding:0; background-color:#F4F7FB; font-family: Arial, Helvetica, sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F4F7FB; padding: 30px 0;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff; border-radius:8px; overflow:hidden;">
+                    <!-- Header -->
+                    <tr>
+                        <td style="background-color:@HeaderColor; padding: 24px 32px;">
+                            <span style="color:#ffffff; font-size:20px; font-weight:bold;">@Title</span><br>
+                            <span style="color:#BFD4EE; font-size:13px;">@Subtitle</span>
+                        </td>
+                    </tr>
+                    <!-- Body -->
+                    <tr>
+                        <td style="padding: 32px;">
+                            @ChildContent
+                        </td>
+                    </tr>
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 20px 32px; border-top: 1px solid #D6E2F1;">
+                            <p style="color:#2B4A73; font-size:12px; line-height:1.5; margin:0;">
+                                Hiflux UK · High-Pressure Flow Control
+                                @if (!string.IsNullOrEmpty(FooterNote))
+                                {
+                                    <br>@FooterNote
+                                }
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+
+@code {
+    [Parameter] public string Title { get; set; } = "Hiflux UK";
+    [Parameter] public string Subtitle { get; set; } = string.Empty;
+    [Parameter] public string HeaderColor { get; set; } = "#1F5FAD";
+    [Parameter] public string? FooterNote { get; set; }
+
+    // Whatever is written between <EmailLayout> and </EmailLayout>.
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}
