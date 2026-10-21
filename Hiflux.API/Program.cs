@@ -10,7 +10,8 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Options;
 using System.Threading.RateLimiting;
 using MongoDB.Driver;
-
+using Hiflux.API.Repository.SQL;
+using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -45,7 +46,8 @@ builder.Services.AddScoped<INoSQLRepository<ProductCatalog>, ProductCatalogRepos
 builder.Services.AddScoped<INoSQLRepository<ProductDetail>, ProductDetailRepository>();
 builder.Services.AddScoped<INoSQLRepository<ProductSeriesVariants>, ProductVariantRepository>();
 builder.Services.AddScoped<IProductService,ProductService>();
-
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 builder.Services.AddOptionsWithValidateOnStart<EmailSettings>()
     .Bind(builder.Configuration.GetSection(nameof(EmailSettings)))
     .Validate(settings =>
@@ -59,13 +61,9 @@ builder.Services.AddSingleton(sp =>
     return new EmailClient(settings.ConnectionString);
 });
 builder.Services.AddScoped<IEmailService, EmailService>();
-// HtmlRenderer turns the .razor files in EmailTemplates/ into HTML strings for email bodies.
 builder.Services.AddScoped<HtmlRenderer>();
 builder.Services.AddScoped<IEmailTemplateService, EmailTemplateService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
-
-// Email is now sent by dropping a request on the storage queue; the queue-triggered
-// function (NotificationQueueTrigger) does the actual ACS delivery out of process.
 builder.Services.AddOptionsWithValidateOnStart<QueueSettings>()
     .Bind(builder.Configuration.GetSection(nameof(QueueSettings)))
     .Validate(settings =>
