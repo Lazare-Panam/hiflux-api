@@ -5,6 +5,7 @@ using Hiflux.API.Repository.NoSQL;
 using Hiflux.API.Services.Interface;
 using Hiflux.API.Services.Notification;
 using Hiflux.API.Services.Products;
+using Hiflux.API.Services.SeriesProducts;
 using Hiflux.API.Settings;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Options;
@@ -48,6 +49,7 @@ builder.Services.AddScoped<INoSQLRepository<ProductSeriesVariants>, ProductVaria
 builder.Services.AddScoped<IProductService,ProductService>();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddScoped<ISeriesProductService, SeriesProductService>();
 builder.Services.AddOptionsWithValidateOnStart<EmailSettings>()
     .Bind(builder.Configuration.GetSection(nameof(EmailSettings)))
     .Validate(settings =>
@@ -72,19 +74,19 @@ builder.Services.AddOptionsWithValidateOnStart<QueueSettings>()
         "QueueSettings: ConnectionString and QueueName must be set.");
 builder.Services.AddScoped<IEmailQueuePublisher, EmailQueuePublisher>();
 
-// Stops bots spamming the contact form: 5 submissions per IP every 10 minutes.
+/*TODO->Rishik, use Polly*/
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
     options.AddPolicy("ContactForm", httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
-            factory: _ => new FixedWindowRateLimiterOptions
-            {
-                PermitLimit = 5,
-                Window = TimeSpan.FromMinutes(10),
-                QueueLimit = 0
-            }));
+        partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        factory: _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 5,
+            Window = TimeSpan.FromMinutes(10),
+            QueueLimit = 0
+        }));
 });
 var policyName = "MarsPolicy";
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
