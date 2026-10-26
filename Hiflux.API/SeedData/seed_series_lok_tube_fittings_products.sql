@@ -1,4 +1,4 @@
--- Lok Tube Fittings products (343) + filter values. Run AFTER the info file. Source: Mongo product_variants.
+-- Lok Tube Fittings products (343) + filter values. Run AFTER the info file. Source: Mongo (pasted).
 DECLARE @SeriesName nvarchar(100) = N'Lok Tube Fittings';
 DECLARE @CategoryId int = (SELECT CategoryId FROM Categories WHERE Name = @SeriesName);
 

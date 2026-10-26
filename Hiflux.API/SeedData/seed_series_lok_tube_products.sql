@@ -1,4 +1,4 @@
--- LOK Tube products (5) + filter values. Run AFTER the info file. Source: Mongo product_variants.
+-- LOK Tube products (5) + filter values. Run AFTER the info file. Source: Mongo (pasted).
 DECLARE @SeriesName nvarchar(100) = N'LOK Tube';
 DECLARE @CategoryId int = (SELECT CategoryId FROM Categories WHERE Name = @SeriesName);
 
